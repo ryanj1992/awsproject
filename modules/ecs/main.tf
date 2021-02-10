@@ -2,17 +2,25 @@
 
 resource "aws_ecs_cluster" "ecs_cluster" {
     name = var.application_name
+
+    tags = {
+        Name = "${var.environment}_ecs_cluster"
+    }
 }
 
 resource "aws_lb_target_group" "alb_target_group" {
   port     = 80
   protocol = "HTTP"
   target_type = "ip"
-  vpc_id   = aws_vpc.main.id
+  vpc_id   = var.main_vpc #aws_vpc.main.id
+
+  tags = {
+    Name = "${var.environment}_lb_tg"
+  }
 }
 
 resource "aws_alb_listener" "alb_listener" {
-  load_balancer_arn = aws_lb.public_alb.arn
+  load_balancer_arn = var.public_alb  # aws_lb.public_alb.arn
   port = "80"
   protocol = "HTTP"
 
@@ -24,25 +32,25 @@ resource "aws_alb_listener" "alb_listener" {
 }
 
 resource "aws_ecs_service" "ecs_service" {
-    name = "hello_world_service"
+    name = var.application_name
     cluster = aws_ecs_cluster.ecs_cluster.arn
     launch_type = var.launch_type
 
     deployment_maximum_percent = 200
     deployment_minimum_healthy_percent = 100
     desired_count = 1
-    task_definition = aws_ecs_task_definition.hello_world_td.family
+    task_definition = aws_ecs_task_definition.hello_world_td.family # REVISION here
 
     load_balancer {
         target_group_arn = aws_lb_target_group.alb_target_group.arn
         container_name = var.container_name # Set as variable
-        container_port = var.port_mappings[containerPort] # Add count if more than one
+        container_port = 80
     }
 
     network_configuration {
-      security_groups = [aws_security_group.private_security_group.id]
-      subnets = aws_subnet.private_subnet.*.id
-      assign_public_ip = true
+      security_groups = [var.security_group] # aws_security_group.private_security_group.id
+      subnets = var.private_subnet # aws_subnet.private_subnet.*.id
+      assign_public_ip = false
     }
 }
 

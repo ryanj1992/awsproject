@@ -1,0 +1,5 @@
+variable "cidr_block" {}
+variable "private_cidrs" {}
+variable "access_ip" {}
+variable "environment" {}
+variable "public_cidrs" {}
