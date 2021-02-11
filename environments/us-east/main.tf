@@ -23,3 +23,8 @@ module "ecs" {
     security_group = module.networking.private_sg_id
     private_subnet = module.networking.private_subnet_id
 }
+
+module "flow-logs" {
+  source = "../../modules/flow-logs"
+  main_vpc = module.networking.main_vpc_id
+}
