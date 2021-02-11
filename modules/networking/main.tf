@@ -3,12 +3,12 @@
 data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "main" {
-  cidr_block = var.cidr_block
+  cidr_block           = var.cidr_block
   enable_dns_hostnames = true
-  enable_dns_support = true
+  enable_dns_support   = true
 
   tags = {
-    Name = "${var.environment}_vpc" 
+    Name = "${var.environment}_vpc"
   }
 }
 
@@ -16,18 +16,18 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}_gw" 
+    Name = "${var.environment}_gw"
   }
 }
 
 resource "aws_route_table" "private_rt" {
-  count = length(aws_subnet.private_subnet)
+  count  = length(aws_subnet.private_subnet)
   vpc_id = aws_vpc.main.id
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.ngw.*.id[count.index] # Needs looking at
   }
-  
+
   tags = {
     Name = "${var.environment}_private_rt_${count.index + 1}"
   }
@@ -40,53 +40,79 @@ resource "aws_route_table" "public_rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
   }
-  
+
   tags = {
     Name = "${var.environment}_public_rt"
   }
 }
 
-# THIS NEEDS LOOKED AT (NOT WORKING WITH TO-FROM PORTS)
-# resource "aws_network_acl" "public_nacl" {
-#   vpc_id = aws_vpc.main.id
-#   subnet_ids = aws_subnet.public_subnet.*.id
+resource "aws_network_acl" "public_nacl" {
+  vpc_id     = aws_vpc.main.id
+  subnet_ids = concat(aws_subnet.public_subnet.*.id, aws_subnet.private_subnet.*.id)
 
-#   ingress {
-#     protocol   = "tcp"
-#     rule_no = 100
-#     action = "allow"
-#     cidr_block = var.access_ip
-#     from_port  = 80
-#     to_port    = 80
-#   }
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = var.access_ip
+    from_port  = 80
+    to_port    = 80
+  }
 
-#   egress {
-#     protocol = "tcp"
-#     rule_no = 100
-#     action = "allow"
-#     cidr_block = var.access_ip
-#     from_port = 80
-#     to_port = 80
-#   }
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = var.access_ip
+    from_port  = 443
+    to_port    = 443
+  }
 
-#   egress {
-#     protocol = "tcp"
-#     rule_no = 110
-#     action = "allow"
-#     cidr_block = var.access_ip
-#     from_port = 1024
-#     to_port = 65535
-#   }
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = var.access_ip
+    from_port  = 1024
+    to_port    = 65535
+  }
 
-#   tags = {
-#     Name = "${var.environment}_public_nacl"
-#   }
-# }
+  egress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = var.access_ip
+    from_port  = 80
+    to_port    = 80
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = var.access_ip
+    from_port  = 1024
+    to_port    = 65535
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = var.access_ip
+    from_port  = 443
+    to_port    = 443
+  }
+
+  tags = {
+    Name = "${var.environment}_public_nacl"
+  }
+}
 
 resource "aws_subnet" "private_subnet" {
-  count = 2
-  vpc_id = aws_vpc.main.id
-  cidr_block = var.private_cidrs[count.index]
+  count             = 2
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_cidrs[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
@@ -95,9 +121,9 @@ resource "aws_subnet" "private_subnet" {
 }
 
 resource "aws_subnet" "public_subnet" {
-  count = length(aws_subnet.private_subnet)
-  vpc_id = aws_vpc.main.id
-  cidr_block = var.public_cidrs[count.index]
+  count             = length(aws_subnet.private_subnet)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_cidrs[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
@@ -107,13 +133,13 @@ resource "aws_subnet" "public_subnet" {
 
 resource "aws_eip" "ngw" {
   count = length(aws_subnet.private_subnet)
-  vpc      = true
+  vpc   = true
 }
 
 resource "aws_nat_gateway" "ngw" {
-  count = length(aws_subnet.private_subnet)
+  count         = length(aws_subnet.private_subnet)
   allocation_id = aws_eip.ngw.*.id[count.index]
-  subnet_id = aws_subnet.public_subnet.*.id[count.index]
+  subnet_id     = aws_subnet.public_subnet.*.id[count.index]
 
   depends_on = [aws_internet_gateway.gw]
 
@@ -123,14 +149,14 @@ resource "aws_nat_gateway" "ngw" {
 }
 
 resource "aws_route_table_association" "private_assoc" {
-  count = length(aws_subnet.private_subnet)
-  subnet_id = aws_subnet.private_subnet.*.id[count.index]
+  count          = length(aws_subnet.private_subnet)
+  subnet_id      = aws_subnet.private_subnet.*.id[count.index]
   route_table_id = aws_route_table.private_rt.*.id[count.index]
 }
 
 resource "aws_route_table_association" "public_assoc" {
-  count = length(aws_subnet.public_subnet)
-  subnet_id = aws_subnet.public_subnet.*.id[count.index]
+  count          = length(aws_subnet.public_subnet)
+  subnet_id      = aws_subnet.public_subnet.*.id[count.index]
   route_table_id = aws_route_table.public_rt.id
 }
 
@@ -140,18 +166,18 @@ resource "aws_security_group" "private_security_group" {
   vpc_id = aws_vpc.main.id
 
   ingress {
-    protocol   = "tcp"
+    protocol    = "tcp"
     cidr_blocks = [var.access_ip]
-    from_port  = 80
-    to_port    = 80
+    from_port   = 80
+    to_port     = 80
   }
 
-# Might need updating when NAT added
+  # Might need updating when NAT added
   egress {
-    protocol = "-1" # all protocols
+    protocol    = "-1" # all protocols
     cidr_blocks = [var.access_ip]
-    from_port = 0
-    to_port = 0
+    from_port   = 0
+    to_port     = 0
   }
 
   tags = {
@@ -162,11 +188,11 @@ resource "aws_security_group" "private_security_group" {
 # Create security group for ALB
 
 resource "aws_lb" "public_alb" {
-  name = "${var.environment}-public-alb"
-  internal = false
+  name               = "${var.environment}-public-alb"
+  internal           = false
   load_balancer_type = "application"
-  security_groups = [aws_security_group.private_security_group.id] # Change to security group for ALB
-  subnets = aws_subnet.public_subnet.*.id
+  security_groups    = [aws_security_group.private_security_group.id] # Change to security group for ALB
+  subnets            = aws_subnet.public_subnet.*.id
 
   # LOGS FOR LOAD BALANCER
   # access_logs {
@@ -179,3 +205,4 @@ resource "aws_lb" "public_alb" {
     Name = "${var.environment}_public_alb"
   }
 }
+
