@@ -29,3 +29,17 @@ public_cidrs = [
   "10.0.4.0/24"
 ]
 access_ip = "0.0.0.0/0"
+
+
+# Auto Scaling vars
+
+min_capacity = 2
+max_capacity = 4
+target_value = 70
+scale_in_cooldown = 120
+scale_out_cooldown = 120
+
+
+# S3 vars
+
+bucket_name = "nginx_alb_ingress_logs_"

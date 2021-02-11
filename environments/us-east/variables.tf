@@ -23,3 +23,16 @@ variable "public_cidrs" {
 }
 variable "access_ip" {}
 variable "environment" {}
+
+
+# Autoscaling variables
+
+variable "min_capacity" {}
+variable "max_capacity" {}
+variable "target_value" {}
+variable "scale_in_cooldown" {}
+variable "scale_out_cooldown" {}
+
+# S3 Variables
+
+variable "bucket_name" {}
