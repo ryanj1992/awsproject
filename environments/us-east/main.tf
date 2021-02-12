@@ -5,7 +5,7 @@ module "networking" {
   public_cidrs  = var.public_cidrs
   access_ip     = var.access_ip
   environment   = var.environment
-  bucket_name = var.bucket_name
+  # bucket_name = var.bucket_name
 }
 
 module "ecs" {
