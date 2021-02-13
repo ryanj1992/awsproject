@@ -100,6 +100,18 @@ module "autoscaling-eu" {
   scale_out_cooldown = var.scale_out_cooldown
 }
 
+# module "route53" {
+#   source = "../../modules/route53"
+#   dns_name = module.us-east-1.public_alb_dns_name
+#   zone_id = module.us-east-1.public_alb_zone_id
+# }
+
+# module "route53" {
+#   source = "../../modules/route53"
+#   dns_name = module.eu-west-1.public_alb_dns_name
+#   zone_id = module.eu-west-1.public_alb_zone_id
+# }
+
 # module "flow-logs-eu" {
 #   source   = "../../modules/flow-logs"
 #   main_vpc = module.us-east-1.main_vpc_id

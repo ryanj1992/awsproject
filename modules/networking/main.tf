@@ -2,6 +2,11 @@
 
 data "aws_availability_zones" "available" {}
 
+locals {
+   peer_cidr = var.cidr_block == "10.0.0.0/16" ? "10.1.0.0/16" : "10.0.0.0/16"
+}
+
+
 resource "aws_vpc" "main" {
   cidr_block           = var.cidr_block
   enable_dns_hostnames = true
@@ -25,7 +30,7 @@ resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.ngw.*.id[count.index] # Needs looking at
+    nat_gateway_id = aws_nat_gateway.ngw.*.id[count.index]
   }
 
   tags = {
@@ -39,6 +44,11 @@ resource "aws_route_table" "public_rt" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
+  }
+
+  route {
+    cidr_block     = local.peer_cidr
+    vpc_peering_connection_id = var.vpc_peer_id
   }
 
   tags = {

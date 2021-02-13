@@ -13,3 +13,11 @@ output "main_vpc_id" {
 output "public_lb_arn" {
   value = aws_lb.public_alb.arn
 }
+
+output "public_alb_dns_name" {
+  value = aws_lb.public_alb.dns_name
+}
+
+output "public_alb_zone_id" {
+  value = aws_lb.public_alb.zone_id
+}
