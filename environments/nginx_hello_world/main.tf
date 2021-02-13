@@ -2,6 +2,7 @@ module "us-east-1" {
     source = "../../modules/networking"
     environment   = "us-east-1"
     cidr_block    = "10.0.0.0/16"
+    vpc_peer_id = module.vpc-peering.vpc_peer_id
     private_cidrs = [
       "10.0.1.0/24",
       "10.0.2.0/24"
@@ -20,6 +21,7 @@ module "eu-west-1" {
     source = "../../modules/networking"
     environment   = "eu-west-1"
     cidr_block    = "10.1.0.0/16"
+    vpc_peer_id = module.vpc-peering.vpc_peer_id
     private_cidrs = [
       "10.1.1.0/24",
       "10.1.2.0/24"
@@ -32,6 +34,13 @@ module "eu-west-1" {
     providers = {
         aws = aws.us-east-1
     }
+}
+
+module "vpc-peering" {
+  source = "../../modules/vpc-peering"
+  # peer_owner_id = var.peer_owner_id
+  peer_vpc_id   = module.us-east-1.main_vpc_id # VPC 1
+  vpc_id        = module.eu-west-1.main_vpc_id # VPC 2
 }
 
 module "ecs-us" {
