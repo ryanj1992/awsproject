@@ -3,12 +3,16 @@
 data "aws_availability_zones" "available" {}
 
 locals {
-   peer_cidr = var.cidr_block == "10.0.0.0/16" ? "10.1.0.0/16" : "10.0.0.0/16"
+   public_cidrs = var.environment == "us-east-1" ? ["10.0.1.0/24", "10.0.2.0/24"] : ["10.1.1.0/24", "10.1.2.0/24"]
+   private_cidrs = var.environment == "us-east-1" ? ["10.0.3.0/24", "10.0.4.0/24"] : ["10.1.3.0/24", "10.1.4.0/24"]
+   cidr_block = var.environment == "us-east-1" ? "10.0.0.0/16" : "10.1.0.0/16"
+   peer_cidr = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
+
 }
 
 
 resource "aws_vpc" "main" {
-  cidr_block           = var.cidr_block
+  cidr_block           = local.cidr_block
   enable_dns_hostnames = true
   enable_dns_support   = true
 
@@ -122,7 +126,7 @@ resource "aws_network_acl" "public_nacl" {
 resource "aws_subnet" "private_subnet" {
   count             = 2
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_cidrs[count.index]
+  cidr_block        = local.private_cidrs[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
@@ -133,7 +137,7 @@ resource "aws_subnet" "private_subnet" {
 resource "aws_subnet" "public_subnet" {
   count             = length(aws_subnet.private_subnet)
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.public_cidrs[count.index]
+  cidr_block        = local.public_cidrs[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
@@ -205,11 +209,11 @@ resource "aws_lb" "public_alb" {
   subnets            = aws_subnet.public_subnet.*.id
 
   # LOGS FOR LOAD BALANCER
-  access_logs {
-    bucket  = var.bucket_name
-    # prefix  = "${var.environment}-public-alb"
-    enabled = true
-  }
+  # access_logs {
+  #   bucket  = var.bucket_name
+  #   # prefix  = "${var.environment}-public-alb"
+  #   enabled = true
+  # }
 
   tags = {
     Name = "${var.environment}_public_alb"

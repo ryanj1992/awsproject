@@ -1,49 +1,28 @@
 module "us-east-1" {
+    for_each = toset( ["us-east-1", "eu-west-1"] )
     source = "../../modules/networking"
-    environment   = "us-east-1"
-    cidr_block    = "10.0.0.0/16"
+    environment   = each.key
     vpc_peer_id = module.vpc-peering.vpc_peer_id
-    private_cidrs = [
-      "10.0.1.0/24",
-      "10.0.2.0/24"
-    ]
-    public_cidrs = [
-      "10.0.3.0/24",
-      "10.0.4.0/24"
-    ]
+    # bucket_name = module.s3-storage.alb_logs_bucket
     access_ip     = var.access_ip
     providers = {
         aws = aws.us-east-1
     }
-    bucket_name = module.s3-storage-us.alb_logs_bucket
-}
-
-module "eu-west-1" {
-    source = "../../modules/networking"
-    environment   = "eu-west-1"
-    cidr_block    = "10.1.0.0/16"
-    vpc_peer_id = module.vpc-peering.vpc_peer_id
-    private_cidrs = [
-      "10.1.1.0/24",
-      "10.1.2.0/24"
-    ]
-    public_cidrs = [
-      "10.1.3.0/24",
-      "10.1.4.0/24"
-    ]
-    access_ip     = var.access_ip
-    providers = {
-        aws = aws.us-east-1
-    }
-    bucket_name = module.s3-storage-eu.alb_logs_bucket
 }
 
 module "vpc-peering" {
   source = "../../modules/vpc-peering"
   # peer_owner_id = var.peer_owner_id
-  peer_vpc_id   = module.us-east-1.main_vpc_id # VPC 1
-  vpc_id        = module.eu-west-1.main_vpc_id # VPC 2
+  peer_vpc_id   = module.us-east-1["us-east-1"].main_vpc_id
+  vpc_id        = module.us-east-1["eu-west-1"].main_vpc_id
 }
+
+# module "s3-storage" {
+#   for_each = toset( ["us-east-1", "eu-west-1"] )
+#   source = "../../modules/s3-storage"
+#   environment   = each.key
+#   # bucket_name = var.bucket_name
+# }
 
 # module "ecs-us" {
 #   source           = "../../modules/ecs"
@@ -123,16 +102,4 @@ module "vpc-peering" {
 #   source   = "../../modules/flow-logs"
 #   main_vpc = module.eu-west-1.main_vpc_id
 # }
-
-module "s3-storage-us" {
-  source = "../../modules/s3-storage"
-  environment = "us-east-1"
-  # bucket_name = var.bucket_name
-}
-
-module "s3-storage-eu" {
-  source = "../../modules/s3-storage"
-  environment = "eu-west-1"
-  # bucket_name = var.bucket_name
-}
 
