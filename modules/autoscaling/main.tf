@@ -1,7 +1,13 @@
+locals {
+  ecs_cluster = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
+  ecs_service = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
+}
+
+
 resource "aws_appautoscaling_target" "ecs_autoscaling" {
   max_capacity       = 4
   min_capacity       = 2
-  resource_id        = "service/${var.ecs_cluster}/${var.ecs_service}"
+  resource_id        = "service/${local.ecs_cluster}/${local.ecs_service}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }

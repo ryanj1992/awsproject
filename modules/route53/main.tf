@@ -1,5 +1,9 @@
-resource "aws_route53_zone" "primary" { # only needs to be created once
-  name = "example.com"
+locals {
+  zone_name = var.environment == "us-east-1" ? "nginx-hello-world-us.com" : "nginx-hello-world-eu.com" # will need changing when going live
+}
+
+resource "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!?!
+  name = local.zone_name
 }
 
 resource "aws_route53_record" "us-east-1-lb" {

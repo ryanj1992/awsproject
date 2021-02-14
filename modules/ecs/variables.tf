@@ -1,4 +1,4 @@
-variable "application_name" {}
+# variable "application_name" {}
 variable "launch_type" {}
 variable "container_image" {}
 variable "container_name" {}

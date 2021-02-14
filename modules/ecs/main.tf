@@ -1,7 +1,12 @@
 #---------------------------------------------- ECS
 
+locals {
+  application_name = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
+}
+
+
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = var.application_name
+  name = local.application_name
 
   tags = {
     Name = "${var.environment}_ecs_cluster"
@@ -32,7 +37,7 @@ resource "aws_alb_listener" "alb_listener" {
 }
 
 resource "aws_ecs_service" "ecs_service" {
-  name        = var.application_name
+  name        = local.application_name
   cluster     = aws_ecs_cluster.ecs_cluster.arn
   launch_type = var.launch_type
 
@@ -69,7 +74,7 @@ module "ecs_hello_world" {
 
 resource "aws_ecs_task_definition" "hello_world_td" {
   container_definitions    = module.ecs_hello_world.json_map_encoded_list
-  family                   = var.application_name
+  family                   = local.application_name
   requires_compatibilities = [var.launch_type]
 
   cpu          = var.cpu

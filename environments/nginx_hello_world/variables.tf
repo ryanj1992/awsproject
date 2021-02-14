@@ -14,15 +14,15 @@ variable "memory" {}
 variable "network_mode" {}
 
 # Networking vars
-variable "cidr_block" {}
-variable "private_cidrs" {
-  type = list(any)
-}
-variable "public_cidrs" {
-  type = list(any)
-}
+# variable "cidr_block" {}
+# variable "private_cidrs" {
+#   type = list(any)
+# }
+# variable "public_cidrs" {
+#   type = list(any)
+# }
 variable "access_ip" {}
-variable "environment" {}
+# variable "environment" {}
 
 
 # Autoscaling variables

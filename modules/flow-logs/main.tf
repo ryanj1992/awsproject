@@ -1,3 +1,9 @@
+locals {
+   flow_log_name = var.environment == "us-east-1" ? "cw_flow_log_us" : "cw_flow_log_eu"
+   flow_iam_role = var.environment == "us-east-1" ? "flow_iam_role_us" : "flow_iam_role_eu"
+}
+
+
 resource "aws_flow_log" "flow_log" {
   vpc_id                   = var.main_vpc
   traffic_type             = "ALL"
@@ -7,11 +13,11 @@ resource "aws_flow_log" "flow_log" {
 }
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
-  name = "cw_flow_log_group"
+  name = local.flow_log_name
 }
 
 resource "aws_iam_role" "flow_iam_role" {
-  name = "flow_iam_role"
+  name = local.flow_iam_role
 
   assume_role_policy = <<EOF
 {
