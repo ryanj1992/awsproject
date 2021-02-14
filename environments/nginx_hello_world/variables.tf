@@ -35,4 +35,4 @@ variable "scale_out_cooldown" {}
 
 # S3 Variables
 
-variable "bucket_name" {}
+# variable "bucket_name" {}

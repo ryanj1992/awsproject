@@ -42,4 +42,4 @@ scale_out_cooldown = 120
 
 # S3 vars
 
-bucket_name = "nginx_alb_ingress_logs_"
+# bucket_name = "nginx_alb_ingress_logs_"
