@@ -3,13 +3,17 @@ locals {
 }
 
 resource "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!?!
-  name = local.zone_name
+  name = local.zone_name # Domain name?
 }
 
 resource "aws_route53_record" "us-east-1-lb" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = "example.com"
   type    = "A"
+
+  latency_routing_policy {
+    # var.region ??
+  }
 
   alias {
     name                   = aws_elb.main.dns_name
