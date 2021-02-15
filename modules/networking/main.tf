@@ -209,11 +209,11 @@ resource "aws_lb" "public_alb" {
   subnets            = aws_subnet.public_subnet.*.id
 
   # LOGS FOR LOAD BALANCER
-  # access_logs {
-  #   bucket  = var.bucket_name
-  #   # prefix  = "${var.environment}-public-alb"
-  #   enabled = true
-  # }
+  access_logs {
+    bucket  = var.bucket_name
+    # prefix  = "${var.environment}-public-alb"
+    enabled = true
+  }
 
   tags = {
     Name = "${var.environment}_public_alb"
