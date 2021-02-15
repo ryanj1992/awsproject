@@ -8,16 +8,16 @@ resource "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!
 
 resource "aws_route53_record" "us-east-1-lb" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "example.com"
+  name    = "example.com" # Domain name, maybe www?
   type    = "A"
 
   latency_routing_policy {
-    # var.region ??
+    var.environment # Region loadbalancer is in
   }
 
   alias {
-    name                   = aws_elb.main.dns_name
-    zone_id                = aws_elb.main.zone_id
+    name                   = var.dns_name
+    zone_id                = var.zone_id
     evaluate_target_health = true
   }
 }
