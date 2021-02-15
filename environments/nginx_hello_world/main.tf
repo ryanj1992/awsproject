@@ -3,7 +3,7 @@ module "us-east-1" { # module name needs to be changed
     source = "../../modules/networking"
     environment   = each.key
     vpc_peer_id = module.vpc-peering.vpc_peer_id
-    # bucket_name = module.s3-storage.alb_logs_bucket
+    bucket_name = module.s3-storage[each.key].alb_logs_bucket
     access_ip     = var.access_ip
     providers = {
         aws = aws.us-east-1
