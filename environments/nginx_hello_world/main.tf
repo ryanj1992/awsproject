@@ -17,12 +17,6 @@ module "vpc-peering" {
   vpc_id        = module.networking["eu-west-1"].main_vpc_id
 }
 
-module "s3-storage" {
-  for_each = toset( ["us-east-1", "eu-west-1"] )
-  source = "../../modules/s3-storage"
-  environment   = each.key
-}
-
 module "ecs-us" {
   for_each = toset( ["us-east-1", "eu-west-1"] )
   source           = "../../modules/ecs"
@@ -51,12 +45,18 @@ module "autoscaling-us" {
   scale_out_cooldown = var.scale_out_cooldown
 }
 
-module "flow-logs-eu" {
+module "s3-storage" {
   for_each = toset( ["us-east-1", "eu-west-1"] )
-  source   = "../../modules/flow-logs"
-  environment = each.key
-  main_vpc = module.networking[each.key].main_vpc_id
+  source = "../../modules/s3-storage"
+  environment   = each.key
 }
+
+# module "flow-logs-eu" {
+#   for_each = toset( ["us-east-1", "eu-west-1"] )
+#   source   = "../../modules/flow-logs"
+#   environment = each.key
+#   main_vpc = module.networking[each.key].main_vpc_id
+# }
 
 # module "route53" {
 #   for_each = toset( ["us-east-1", "eu-west-1"] )

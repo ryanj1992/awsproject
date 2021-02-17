@@ -7,8 +7,8 @@ locals {
    private_cidrs = var.environment == "us-east-1" ? ["10.0.3.0/24", "10.0.4.0/24"] : ["10.1.3.0/24", "10.1.4.0/24"]
    cidr_block = var.environment == "us-east-1" ? "10.0.0.0/16" : "10.1.0.0/16"
    peer_cidr = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
-
 }
+
 
 resource "aws_vpc" "main" {
   cidr_block           = local.cidr_block
@@ -20,6 +20,7 @@ resource "aws_vpc" "main" {
   }
 }
 
+
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
@@ -28,11 +29,12 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+
 resource "aws_route_table" "private_rt" {
   count  = length(aws_subnet.private_subnet)
   vpc_id = aws_vpc.main.id
   route {
-    cidr_block     = "0.0.0.0/0"
+    cidr_block     = var.access_ip
     nat_gateway_id = aws_nat_gateway.ngw.*.id[count.index]
   }
 
@@ -41,13 +43,15 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
+
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.access_ip
     gateway_id = aws_internet_gateway.gw.id
   }
+
 
   route {
     cidr_block     = local.peer_cidr
@@ -58,6 +62,7 @@ resource "aws_route_table" "public_rt" {
     Name = "${var.environment}_public_rt"
   }
 }
+
 
 resource "aws_network_acl" "public_nacl" {
   vpc_id     = aws_vpc.main.id
@@ -122,6 +127,7 @@ resource "aws_network_acl" "public_nacl" {
   }
 }
 
+
 resource "aws_subnet" "private_subnet" {
   count             = 2
   vpc_id            = aws_vpc.main.id
@@ -132,6 +138,7 @@ resource "aws_subnet" "private_subnet" {
     Name = "${var.environment}_private_subnet_${count.index + 1}"
   }
 }
+
 
 resource "aws_subnet" "public_subnet" {
   count             = length(aws_subnet.private_subnet)
@@ -144,10 +151,12 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
+
 resource "aws_eip" "ngw" {
   count = length(aws_subnet.private_subnet)
   vpc   = true
 }
+
 
 resource "aws_nat_gateway" "ngw" {
   count         = length(aws_subnet.private_subnet)
@@ -161,11 +170,13 @@ resource "aws_nat_gateway" "ngw" {
   }
 }
 
+
 resource "aws_route_table_association" "private_assoc" {
   count          = length(aws_subnet.private_subnet)
   subnet_id      = aws_subnet.private_subnet.*.id[count.index]
   route_table_id = aws_route_table.private_rt.*.id[count.index]
 }
+
 
 resource "aws_route_table_association" "public_assoc" {
   count          = length(aws_subnet.public_subnet)
@@ -173,7 +184,6 @@ resource "aws_route_table_association" "public_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# Public association table here
 
 resource "aws_security_group" "private_security_group" {
   vpc_id = aws_vpc.main.id
@@ -198,7 +208,6 @@ resource "aws_security_group" "private_security_group" {
   }
 }
 
-# Create security group for ALB
 
 resource "aws_lb" "public_alb" {
   name               = "${var.environment}-public-alb"
@@ -210,7 +219,6 @@ resource "aws_lb" "public_alb" {
   # LOGS FOR LOAD BALANCER
   access_logs {
     bucket  = var.bucket_name
-    # prefix  = "${var.environment}-public-alb"
     enabled = true
   }
 
