@@ -34,16 +34,16 @@ module "ecs-us" {
   private_subnet   = module.networking[each.key].private_subnet_id
 }
 
-module "autoscaling-us" {
-  for_each = toset( ["us-east-1", "eu-west-1"] )
-  source      = "../../modules/autoscaling"
-  environment = each.key
-  min_capacity = var.min_capacity
-  max_capacity = var.max_capacity
-  target_value = var.target_value
-  scale_in_cooldown = var.scale_in_cooldown
-  scale_out_cooldown = var.scale_out_cooldown
-}
+# module "autoscaling-us" {
+#   for_each = toset( ["us-east-1", "eu-west-1"] )
+#   source      = "../../modules/autoscaling"
+#   environment = each.key
+#   min_capacity = var.min_capacity
+#   max_capacity = var.max_capacity
+#   target_value = var.target_value
+#   scale_in_cooldown = var.scale_in_cooldown
+#   scale_out_cooldown = var.scale_out_cooldown
+# }
 
 module "s3-storage" {
   for_each = toset( ["us-east-1", "eu-west-1"] )

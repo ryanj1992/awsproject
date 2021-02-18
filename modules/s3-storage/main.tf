@@ -22,7 +22,7 @@ resource "aws_s3_bucket_policy" "access_logs" {
           "AWS": "arn:aws:iam::127311923021:root"
         },
         "Action": "s3:PutObject",
-        "Resource": "arn:aws:s3:::nginx-hello-world-alb-logs-${var.environment}/AWSLogs/274736243942/*"
+        "Resource": "arn:aws:s3:::nginx-hello-world-alb-logs-${var.environment}/*"
       },
       {
         "Effect": "Allow",
@@ -30,7 +30,7 @@ resource "aws_s3_bucket_policy" "access_logs" {
           "Service": "delivery.logs.amazonaws.com"
         },
         "Action": "s3:PutObject",
-        "Resource": "arn:aws:s3:::nginx-hello-world-alb-logs-${var.environment}/AWSLogs/274736243942/*",
+        "Resource": "arn:aws:s3:::nginx-hello-world-alb-logs-${var.environment}/*",
         "Condition": {
           "StringEquals": {
             "s3:x-amz-acl": "bucket-owner-full-control"
