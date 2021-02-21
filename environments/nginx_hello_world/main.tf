@@ -24,23 +24,24 @@ module "s3-storage" {
   # bucket_name = var.bucket_name
 }
 
-# module "ecs" {
-#   for_each = toset( ["us-east-1", "eu-west-1"] )
-#   source           = "../../modules/ecs"
-#   environment      = each.key
-#   # application_name = "nginx_hello_world_us"
-#   launch_type      = var.launch_type # make these locals??
-#   container_image  = var.container_image
-#   container_name   = var.container_name
-#   port_mappings    = var.port_mappings
-#   cpu              = var.cpu
-#   memory           = var.memory
-#   network_mode     = var.network_mode
-#   public_alb       = module.us-east-1[each.key].public_lb_arn
-#   main_vpc         = module.us-east-1[each.key].main_vpc_id
-#   security_group   = module.us-east-1[each.key].private_sg_id
-#   private_subnet   = module.us-east-1[each.key].private_subnet_id
-# }
+module "ecs" {
+  for_each = toset( ["us-east-1", "eu-west-1"] )
+  source           = "../../modules/ecs"
+  environment      = each.key
+  # application_name = "nginx_hello_world_us"
+  launch_type      = var.launch_type # make these locals??
+  container_image  = var.container_image
+  container_name   = var.container_name
+  port_mappings    = var.port_mappings
+  cpu              = var.cpu
+  memory           = var.memory
+  network_mode     = var.network_mode
+  role_arn = module.endpoints.role_arn
+  public_alb       = module.us-east-1[each.key].public_lb_arn
+  main_vpc         = module.us-east-1[each.key].main_vpc_id
+  security_group   = module.us-east-1[each.key].private_sg_id
+  private_subnet   = module.us-east-1[each.key].private_subnet_id
+}
 
 module "endpoints" {
     source           = "../../modules/endpoints"
