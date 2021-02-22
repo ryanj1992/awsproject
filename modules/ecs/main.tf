@@ -4,6 +4,9 @@ locals {
   application_name = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
 }
 
+data "aws_ecr_repository" "service" {
+  name = "nginx_hello_world"
+}
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = local.application_name
@@ -68,7 +71,7 @@ resource "aws_ecs_service" "ecs_service" {
 module "ecs_hello_world" {
   source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.49.0"
   container_name  = var.container_name
-  container_image = var.container_image
+  container_image = data.aws_ecr_repository.service.repository_url
   port_mappings   = var.port_mappings
 }
 

@@ -4,7 +4,6 @@ variable "aws_region" {}
 # ECS vars
 variable "launch_type" {}
 variable "application_name" {}
-variable "container_image" {}
 variable "container_name" {}
 variable "port_mappings" {
   type = list(map(string))

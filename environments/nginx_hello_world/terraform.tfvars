@@ -1,11 +1,10 @@
 # Environment vars
 # environment = "us-east" # not used
-aws_region  = "us-east-1"
+aws_region = "us-east-1"
 
 # ECS vars
 launch_type      = "FARGATE"
 application_name = "nginx_hello_world"
-container_image  = "380788846839.dkr.ecr.us-east-1.amazonaws.com/nginx_hello_world" # nginxdemos/hello
 container_name   = "nginx_hello_world"
 port_mappings = [
   {
@@ -33,10 +32,10 @@ access_ip = "0.0.0.0/0"
 
 # Auto Scaling vars
 
-min_capacity = 2
-max_capacity = 4
-target_value = 70
-scale_in_cooldown = 120
+min_capacity       = 2
+max_capacity       = 4
+target_value       = 70
+scale_in_cooldown  = 120
 scale_out_cooldown = 120
 
 
