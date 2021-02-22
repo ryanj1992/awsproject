@@ -20,7 +20,7 @@ resource "aws_lb_target_group" "alb_target_group" {
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = var.main_vpc #aws_vpc.main.id
+  vpc_id      = var.main_vpc
 
   tags = {
     Name = "${var.environment}_lb_tg"
@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "alb_target_group" {
 }
 
 resource "aws_alb_listener" "alb_listener" {
-  load_balancer_arn = var.public_alb # aws_lb.public_alb.arn
+  load_balancer_arn = var.public_alb
   port              = "80"
   protocol          = "HTTP"
 
@@ -47,7 +47,7 @@ resource "aws_ecs_service" "ecs_service" {
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
   desired_count                      = 2
-  task_definition                    = aws_ecs_task_definition.hello_world_td.family # REVISION here
+  task_definition                    = aws_ecs_task_definition.hello_world_td.family
 
   lifecycle {
     ignore_changes = [
@@ -56,14 +56,18 @@ resource "aws_ecs_service" "ecs_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.alb_target_group.arn
-    container_name   = var.container_name # Set as variable
+    container_name   = var.container_name
     container_port   = 80
   }
 
   network_configuration {
-    security_groups  = [var.security_group] # aws_security_group.private_security_group.id
-    subnets          = var.private_subnet   # aws_subnet.private_subnet.*.id
+    security_groups  = [var.security_group]
+    subnets          = var.private_subnet
     assign_public_ip = false
+  }
+
+  tags = {
+    Name = "${var.environment}_${var.container_name}_ecs_service"
   }
 }
 
@@ -85,6 +89,10 @@ resource "aws_ecs_task_definition" "hello_world_td" {
   network_mode = var.network_mode
   execution_role_arn = var.execution_role_arn
   task_role_arn = var.execution_role_arn
+
+  tags = {
+    Name = "${var.environment}_${var.container_name}_ecs_task_definition"
+  }
 }
 
 

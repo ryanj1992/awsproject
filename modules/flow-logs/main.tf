@@ -10,6 +10,10 @@ resource "aws_flow_log" "flow_log" {
   log_destination          = aws_cloudwatch_log_group.flow_log_group.arn
   iam_role_arn             = aws_iam_role.flow_iam_role.arn
   max_aggregation_interval = 60
+
+  tags = {
+    Name = "${var.environment}_flow_logs"
+  }
 }
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
