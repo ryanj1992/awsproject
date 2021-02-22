@@ -194,6 +194,13 @@ resource "aws_security_group" "private_security_group" {
     to_port     = 80
   }
 
+  ingress {
+    protocol    = "tcp"
+    cidr_blocks = [var.access_ip]
+    from_port   = 443
+    to_port     = 443
+  }
+  
   # Might need updating when NAT added
   egress {
     protocol    = "-1" # all protocols

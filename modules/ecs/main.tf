@@ -80,6 +80,8 @@ resource "aws_ecs_task_definition" "hello_world_td" {
   cpu          = var.cpu
   memory       = var.memory
   network_mode = var.network_mode
+  execution_role_arn = var.execution_role_arn
+  task_role_arn = var.execution_role_arn
 }
 
 

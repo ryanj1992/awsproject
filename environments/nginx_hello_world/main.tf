@@ -17,7 +17,7 @@ module "vpc-peering" {
   vpc_id        = module.networking["eu-west-1"].main_vpc_id
 }
 
-module "ecs-us" {
+module "ecs" {
   for_each = toset( ["us-east-1", "eu-west-1"] )
   source           = "../../modules/ecs"
   environment      = each.key
@@ -28,6 +28,7 @@ module "ecs-us" {
   cpu              = var.cpu
   memory           = var.memory
   network_mode     = var.network_mode
+  execution_role_arn = module.endpoints.role_arn
   public_alb       = module.networking[each.key].public_lb_arn
   main_vpc         = module.networking[each.key].main_vpc_id
   security_group   = module.networking[each.key].private_sg_id
@@ -51,11 +52,18 @@ module "s3-storage" {
   environment   = each.key
 }
 
+module "endpoints" {
+    source           = "../../modules/endpoints"
+    security_group = module.networking["us-east-1"].private_sg_id
+    vpc_id = module.networking["us-east-1"].main_vpc_id
+    private_subnet_id = module.networking["us-east-1"].private_subnet_id
+}
+
 # module "flow-logs-eu" {
 #   for_each = toset( ["us-east-1", "eu-west-1"] )
 #   source   = "../../modules/flow-logs"
 #   environment = each.key
-#   main_vpc = module.networking[each.key].main_vpc_id
+#   main_vpc = module.us-east-1[each.key].main_vpc_id
 # }
 
 # module "route53" {

@@ -5,7 +5,7 @@ aws_region  = "us-east-1"
 # ECS vars
 launch_type      = "FARGATE"
 application_name = "nginx_hello_world"
-container_image  = "nginxdemos/hello"
+container_image  = "380788846839.dkr.ecr.us-east-1.amazonaws.com/nginx_hello_world" # nginxdemos/hello
 container_name   = "nginx_hello_world"
 port_mappings = [
   {
