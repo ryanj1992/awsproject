@@ -6,7 +6,7 @@ module "networking" {
   bucket_name = module.s3-storage[each.key].alb_logs_bucket
   access_ip   = var.access_ip
   providers = {
-    aws = aws.us-east-1
+    aws = aws.us-east-1 # change this to each.key and add to other modules
   }
 }
 
@@ -32,6 +32,10 @@ module "ecs" {
   main_vpc           = module.networking[each.key].main_vpc_id
   security_group     = module.networking[each.key].private_sg_id
   private_subnet     = module.networking[each.key].private_subnet_id
+
+  # providers {
+  #   aws = aws."${var.environment}"
+  # }
 }
 
 # module "autoscaling-us" {
@@ -43,19 +47,33 @@ module "ecs" {
 #   target_value = var.target_value
 #   scale_in_cooldown = var.scale_in_cooldown
 #   scale_out_cooldown = var.scale_out_cooldown
+
+  # providers {
+  #   aws = aws."${var.environment}"
+  # }
 # }
 
 module "s3-storage" {
   for_each    = toset(["us-east-1", "eu-west-1"])
   source      = "../../modules/s3-storage"
   environment = each.key
+
+  # providers {
+  #   aws = aws."${var.environment}"
+  # }
 }
 
-module "endpoints" { # needs updating with route53
+module "endpoints" { # needs updating with each.key
+  # for_each    = toset(["us-east-1", "eu-west-1"])
+  # environment = each.key
   source            = "../../modules/endpoints"
   security_group    = module.networking["us-east-1"].private_sg_id
   vpc_id            = module.networking["us-east-1"].main_vpc_id
   private_subnet_id = module.networking["us-east-1"].private_subnet_id
+
+  # providers {
+  #   aws = aws."${var.environment}"
+  # }
 }
 
 # module "flow-logs-eu" {
@@ -63,10 +81,14 @@ module "endpoints" { # needs updating with route53
 #   source   = "../../modules/flow-logs"
 #   environment = each.key
 #   main_vpc = module.networking[each.key].main_vpc_id
+
+  # providers {
+  #   aws = aws."${var.environment}"
+  # }
 # }
 
 # module "route53" {
-#   for_each = toset( ["us-east-1", "eu-west-1"] )
+#   for_each = toset( ["us-east-1", "eu-west-1"] ) # Not needed, I dont think (global)
 #   source = "../../modules/route53"
 #   environment = each.key
 #   dns_name = module.networking[each.key].public_alb_dns_name
