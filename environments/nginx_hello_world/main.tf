@@ -38,21 +38,6 @@ module "ecs" {
   # }
 }
 
-# module "autoscaling-us" {
-#   for_each = toset( ["us-east-1", "eu-west-1"] )
-#   source      = "../../modules/autoscaling"
-#   environment = each.key
-#   min_capacity = var.min_capacity
-#   max_capacity = var.max_capacity
-#   target_value = var.target_value
-#   scale_in_cooldown = var.scale_in_cooldown
-#   scale_out_cooldown = var.scale_out_cooldown
-
-  # providers {
-  #   aws = aws."${var.environment}"
-  # }
-# }
-
 module "s3-storage" {
   for_each    = toset(["us-east-1", "eu-west-1"])
   source      = "../../modules/s3-storage"
@@ -76,6 +61,21 @@ module "endpoints" { # needs updating with each.key
   # }
 }
 
+# module "autoscaling-us" {
+#   for_each = toset( ["us-east-1", "eu-west-1"] )
+#   source      = "../../modules/autoscaling"
+#   environment = each.key
+#   min_capacity = var.min_capacity
+#   max_capacity = var.max_capacity
+#   target_value = var.target_value
+#   scale_in_cooldown = var.scale_in_cooldown
+#   scale_out_cooldown = var.scale_out_cooldown
+
+  # providers {
+  #   aws = aws."${var.environment}"
+  # }
+# }
+
 # module "flow-logs-eu" {
 #   for_each = toset( ["us-east-1", "eu-west-1"] )
 #   source   = "../../modules/flow-logs"
@@ -93,4 +93,9 @@ module "endpoints" { # needs updating with each.key
 #   environment = each.key
 #   dns_name = module.networking[each.key].public_alb_dns_name
 #   zone_id = module.networking[each.key].public_alb_zone_id
+# }
+
+# module "athena" {
+#   source = "../../modules/athena"
+#   # s3bucket = module.s3-storage.alb_logs_bucket
 # }
