@@ -1,5 +1,5 @@
 output "private_subnet_id" {
-  value = aws_subnet.private_subnet.*.id
+  value = [for zone in aws_subnet.public_subnet : zone.id]
 }
 
 output "private_sg_id" {

@@ -1,10 +1,9 @@
-#---------------------------------- NETWORKING
+
 
 locals {
-   public_cidrs = var.environment == "us-east-1" ? {us-east-1a = "10.0.1.0/24", us-east-1b = "10.0.2.0/24"} : {us-east-1a = "10.1.1.0/24", us-east-1b  = "10.1.2.0/24"}
-   private_cidrs = var.environment == "us-east-1" ? {us-east-1a = "10.0.3.0/24", us-east-1b = "10.0.4.0/24"} : {us-east-1a  = "10.1.3.0/24", us-east-1b = "10.1.4.0/24"}
-   cidr_block = var.environment == "us-east-1" ? "10.0.0.0/16" : "10.1.0.0/16"
-   peer_cidr = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
+   public_cidrs = {us-east-1a = "10.0.1.0/24", us-east-1b = "10.0.2.0/24"}
+   private_cidrs = {us-east-1a = "10.0.3.0/24", us-east-1b = "10.0.4.0/24"}
+   cidr_block =  "10.0.0.0/16"
 }
 
 resource "aws_vpc" "main" {
@@ -13,7 +12,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name = "${var.environment}_vpc"
+    Name = "us-east-1_vpc"
   }
 }
 
@@ -21,9 +20,11 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}_gw"
+    Name = "us_east_1_gw"
   }
 }
+
+
 resource "aws_subnet" "public_subnet" {
   for_each          = tomap(local.public_cidrs)
   vpc_id            = aws_vpc.main.id
@@ -34,6 +35,7 @@ resource "aws_subnet" "public_subnet" {
     Name = "${each.key}_public_subnet"
   }
 }
+
 resource "aws_subnet" "private_subnet" {
   for_each          = tomap(local.private_cidrs)
   vpc_id            = aws_vpc.main.id
@@ -49,17 +51,17 @@ resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = var.access_ip
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  route {
-    cidr_block     = local.peer_cidr
-    vpc_peering_connection_id = var.vpc_peer_id
-  }
+  # route {
+  #   cidr_block     = local.peer_cidr
+  #   vpc_peering_connection_id = var.vpc_peer_id
+  # }
 
   tags = {
-    Name = "${var.environment}_public_rt"
+    Name = "us-east-1_public_rt"
   }
 }
 
@@ -68,7 +70,7 @@ resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block     = var.access_ip
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.ngw[each.key].id
   }
 
@@ -87,7 +89,7 @@ resource "aws_network_acl" "public_nacl" {
       protocol   = "tcp"
       rule_no    = ingress.value.rule_no
       action     = ingress.value.action
-      cidr_block = var.access_ip
+      cidr_block = ingress.value.cidr_block
       from_port  = ingress.value.from_port
       to_port    = ingress.value.to_port
     }
@@ -99,14 +101,14 @@ resource "aws_network_acl" "public_nacl" {
       protocol   = "tcp"
       rule_no    = egress.value.rule_no
       action     = egress.value.action
-      cidr_block = var.access_ip
+      cidr_block = egress.value.cidr_block
       from_port  = egress.value.from_port
       to_port    = egress.value.to_port     
     }
   }
 
   tags = {
-    Name = "${var.environment}_public_nacl"
+    Name = "us-east-1_public_nacl"
   }
 }
 
@@ -146,14 +148,14 @@ resource "aws_security_group" "private_security_group" {
 
   ingress {
     protocol    = "tcp"
-    cidr_blocks = [var.access_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     from_port   = 80
     to_port     = 80
   }
 
   ingress {
     protocol    = "tcp"
-    cidr_blocks = [var.access_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     from_port   = 443
     to_port     = 443
   }
@@ -161,32 +163,30 @@ resource "aws_security_group" "private_security_group" {
   # Might need updating when NAT added
   egress {
     protocol    = "-1" # all protocols
-    cidr_blocks = [var.access_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     from_port   = 0
     to_port     = 0
   }
 
   tags = {
-    Name = "${var.environment}_private_sg"
+    Name = "us-east-1_private_sg"
   }
 }
 
-
 resource "aws_lb" "public_alb" {
-  name               = "${var.environment}-public-alb"
+  name               = "us-east-1-public-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.private_security_group.id] # Change to security group for ALB
   subnets = [for zone in aws_subnet.public_subnet : zone.id]
 
-  # LOGS FOR LOAD BALANCER
-  access_logs {
-    bucket  = var.bucket_name
-    enabled = true
-  }
+  # # LOGS FOR LOAD BALANCER
+  # access_logs {
+  #   bucket  = var.bucket_name
+  #   enabled = true
+  # }
 
   tags = {
-    Name = "${var.environment}_public_alb"
+    Name = "us-east-1_public_alb"
   }
 }
-
