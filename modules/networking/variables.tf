@@ -23,6 +23,7 @@ variable nacl_egress {
 
 variable sg_ingress {
   type        = list(object({
+        protocol   = string
         from_port  = number
         to_port    = number
   }))

@@ -1,7 +1,7 @@
 #---------------------------------------------- ECS
 
 locals {
-  application_name = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
+  application_name = var.environment == "us-east-1" ? "nginx-hello-world-us" : "nginx-hello-world-eu"
 }
 
 data "aws_ecr_repository" "service" {
@@ -27,6 +27,7 @@ resource "aws_lb_target_group" "alb_target_group" {
   }
 }
 
+
 resource "aws_alb_listener" "alb_listener" {
   load_balancer_arn = var.public_alb
   port              = "80"
@@ -48,6 +49,7 @@ resource "aws_ecs_service" "ecs_service" {
   deployment_minimum_healthy_percent = 100
   desired_count                      = 2
   task_definition                    = aws_ecs_task_definition.hello_world_td.family
+  platform_version                   = "1.4.0"
 
   lifecycle {
     ignore_changes = [
@@ -90,9 +92,33 @@ resource "aws_ecs_task_definition" "hello_world_td" {
   execution_role_arn = var.execution_role_arn
   task_role_arn = var.execution_role_arn
 
+  volume {
+    name = "nginx-hello-world-efs"
+
+    efs_volume_configuration {
+      file_system_id          = aws_efs_file_system.ecs_efs.id
+      root_directory          = "/opt/data"
+      # transit_encryption      = "ENABLED"
+      # transit_encryption_port = 2999
+    }
+  }
+
   tags = {
     Name = "${var.environment}_${var.container_name}_ecs_task_definition"
   }
 }
 
+# EFS file system
 
+resource "aws_efs_file_system" "ecs_efs" {
+  creation_token = "${var.environment}_nginx_hello_world"
+
+  tags = {
+    Name = "${var.environment}_efs_nginx_hello_world"
+  }
+}
+
+resource "aws_efs_mount_target" "alpha" {
+  file_system_id = aws_efs_file_system.ecs_efs.id
+  subnet_id      = var.private_subnet[0]
+}
