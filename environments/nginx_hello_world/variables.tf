@@ -12,18 +12,6 @@ variable "cpu" {}
 variable "memory" {}
 variable "network_mode" {}
 
-# Networking vars
-# variable "cidr_block" {}
-# variable "private_cidrs" {
-#   type = list(any)
-# }
-# variable "public_cidrs" {
-#   type = list(any)
-# }
-variable "access_ip" {}
-# variable "environment" {}
-
-
 # Autoscaling variables
 
 variable "min_capacity" {}
@@ -32,6 +20,9 @@ variable "target_value" {}
 variable "scale_in_cooldown" {}
 variable "scale_out_cooldown" {}
 
-# S3 Variables
+# Networking variables
 
-# variable "bucket_name" {}
+variable "access_ip" {}
+variable "nacl_ingress" {}
+variable "nacl_egress" {}
+variable "sg_ingress" {}

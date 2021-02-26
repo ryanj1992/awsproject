@@ -82,7 +82,7 @@ resource "aws_network_acl" "public_nacl" {
   subnet_ids = [for zone in aws_subnet.public_subnet : zone.id]
 
   dynamic "ingress" {
-    for_each = var.ingress
+    for_each = var.nacl_ingress
     content {
       protocol   = "tcp"
       rule_no    = ingress.value.rule_no
@@ -94,7 +94,7 @@ resource "aws_network_acl" "public_nacl" {
   }
 
   dynamic "egress" {
-    for_each = var.egress
+    for_each = var.nacl_egress
     content {
       protocol   = "tcp"
       rule_no    = egress.value.rule_no
@@ -144,21 +144,16 @@ resource "aws_route_table_association" "public_assoc" {
 resource "aws_security_group" "private_security_group" {
   vpc_id = aws_vpc.main.id
 
-  ingress {
-    protocol    = "tcp"
-    cidr_blocks = [var.access_ip]
-    from_port   = 80
-    to_port     = 80
-  }
-
-  ingress {
-    protocol    = "tcp"
-    cidr_blocks = [var.access_ip]
-    from_port   = 443
-    to_port     = 443
+  dynamic "ingress" {
+    for_each = var.sg_ingress
+    content {
+      protocol   = "tcp"
+      cidr_blocks = [var.access_ip]
+      from_port  = ingress.value.from_port
+      to_port    = ingress.value.to_port
+    }
   }
   
-  # Might need updating when NAT added
   egress {
     protocol    = "-1" # all protocols
     cidr_blocks = [var.access_ip]

@@ -1,5 +1,4 @@
 # Environment vars
-# environment = "us-east" # not used
 aws_region = "us-east-1"
 
 # ECS vars
@@ -17,19 +16,6 @@ cpu          = "256"
 memory       = "512"
 network_mode = "awsvpc"
 
-# Networking vars
-# cidr_block = "10.0.0.0/16" # not used
-# private_cidrs = [ # not used
-#   "10.0.1.0/24",
-#   "10.0.2.0/24"
-# ]
-# public_cidrs = [ # not used
-#   "10.0.3.0/24",
-#   "10.0.4.0/24"
-# ]
-access_ip = "0.0.0.0/0"
-
-
 # Auto Scaling vars
 
 min_capacity       = 2
@@ -38,7 +24,61 @@ target_value       = 70
 scale_in_cooldown  = 120
 scale_out_cooldown = 120
 
+# Networking vars
 
-# S3 vars
+access_ip = "0.0.0.0/0"
+nacl_ingress = [
+    {
+        rule_no    = 100
+        action     = "allow"
+        from_port  = 80
+        to_port    = 80
+    },
 
-# bucket_name = "nginx_alb_ingress_logs_" # not used
+    {
+        rule_no    = 120
+        action     = "allow"
+        from_port  = 443
+        to_port    = 443
+    },
+
+    {
+        rule_no    = 110
+        action     = "allow"
+        from_port  = 1024
+        to_port    = 65535
+    }]
+
+nacl_egress = [
+    {
+        rule_no    = 100
+        action     = "allow"
+        from_port  = 80
+        to_port    = 80
+    },
+
+    {
+        rule_no    = 120
+        action     = "allow"
+        from_port  = 443
+        to_port    = 443
+    },
+
+    {
+        rule_no    = 110
+        action     = "allow"
+        from_port  = 1024
+        to_port    = 65535
+    }]
+
+sg_ingress = [
+    {
+        from_port   = 80
+        to_port     = 80
+    },
+
+    { 
+      from_port   = 443
+      to_port     = 443
+    }
+]
