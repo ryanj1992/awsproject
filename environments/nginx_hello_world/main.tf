@@ -35,6 +35,7 @@ module "ecs" {
   main_vpc           = module.networking[each.key].main_vpc_id
   security_group     = module.networking[each.key].private_sg_id
   private_subnet     = module.networking[each.key].private_subnet_id
+  efs_id             = module.networking[each.key].efs_id
 
   # providers {
   #   aws = aws."${var.environment}"

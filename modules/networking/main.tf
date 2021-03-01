@@ -185,3 +185,25 @@ resource "aws_lb" "public_alb" {
   }
 }
 
+
+# EFS file system
+
+resource "aws_efs_file_system" "ecs_efs" {
+  creation_token = "${var.environment}_nginx_hello_world"
+
+  lifecycle_policy {
+    transition_to_ia = "AFTER_30_DAYS"
+  }
+
+  tags = {
+    Name = "${var.environment}_efs_nginx_hello_world"
+  }
+}
+
+resource "aws_efs_mount_target" "private_subnets" {
+  for_each        = aws_subnet.private_subnet
+  file_system_id  = aws_efs_file_system.ecs_efs.id
+  subnet_id       = each.value.id
+  security_groups = [aws_security_group.private_security_group.id]
+}
+

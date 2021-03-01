@@ -12,6 +12,7 @@ variable "security_group" {}
 variable "private_subnet" {}
 variable "main_vpc" {}
 variable "environment" {}
+variable "efs_id" {}
 
 # Outputs from endpoints
 

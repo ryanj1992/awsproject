@@ -21,3 +21,7 @@ output "public_alb_dns_name" {
 output "public_alb_zone_id" {
   value = aws_lb.public_alb.zone_id
 }
+
+output "efs_id" {
+  value = aws_efs_file_system.ecs_efs.id
+}
