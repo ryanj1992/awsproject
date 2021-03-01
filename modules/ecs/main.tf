@@ -78,6 +78,12 @@ module "ecs_hello_world" {
   container_name  = var.container_name
   container_image = data.aws_ecr_repository.service.repository_url
   port_mappings   = var.port_mappings
+#   mount_points    = [
+#       {
+#           sourceVolume = "nginx-hello-world-efs"
+#           containerPath = "/usr/share/nginx/html"
+#       }
+#   ]
 }
 
 resource "aws_ecs_task_definition" "hello_world_td" {

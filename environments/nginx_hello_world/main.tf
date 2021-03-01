@@ -38,7 +38,7 @@ module "ecs" {
   efs_id             = module.networking[each.key].efs_id
 
   # providers {
-  #   aws = aws."${var.environment}"
+  #   aws = aws."${each.key}"
   # }
 }
 
@@ -48,7 +48,7 @@ module "s3-storage" {
   environment = each.key
 
   # providers {
-  #   aws = aws."${var.environment}"
+  #   aws = aws."${each.key}"
   # }
 }
 
@@ -61,7 +61,7 @@ module "endpoints" { # needs updating with each.key
   private_subnet_id = module.networking["us-east-1"].private_subnet_id
 
   # providers {
-  #   aws = aws."${var.environment}"
+  #   aws = aws."${each.key}"
   # }
 }
 
@@ -76,7 +76,7 @@ module "endpoints" { # needs updating with each.key
 #   scale_out_cooldown = var.scale_out_cooldown
 
 # providers {
-#   aws = aws."${var.environment}"
+#   aws = aws."${each.key}"
 # }
 # }
 
@@ -87,7 +87,7 @@ module "endpoints" { # needs updating with each.key
 #   main_vpc = module.networking[each.key].main_vpc_id
 
 # providers {
-#   aws = aws."${var.environment}"
+#   aws = aws."${each.key}"
 # }
 # }
 
