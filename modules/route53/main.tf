@@ -3,7 +3,7 @@ locals {
 }
 
 resource "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!?!
-  name = local.zone_name # Domain name?
+  name = local.zone_name                # Domain name?
 }
 
 resource "aws_route53_record" "us-east-1-lb" {
@@ -12,7 +12,7 @@ resource "aws_route53_record" "us-east-1-lb" {
   type    = "A"
 
   latency_routing_policy {
-    var.environment # Region loadbalancer is in
+    region = var.environment # Region loadbalancer is in
   }
 
   alias {

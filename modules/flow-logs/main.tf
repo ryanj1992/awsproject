@@ -1,6 +1,6 @@
 locals {
-   flow_log_name = var.environment == "us-east-1" ? "cw_flow_log_us" : "cw_flow_log_eu"
-   flow_iam_role = var.environment == "us-east-1" ? "flow_iam_role_us" : "flow_iam_role_eu"
+  flow_log_name = var.environment == "us-east-1" ? "cw_flow_log_us" : "cw_flow_log_eu"
+  flow_iam_role = var.environment == "us-east-1" ? "flow_iam_role_us" : "flow_iam_role_eu"
 }
 
 

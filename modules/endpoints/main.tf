@@ -37,7 +37,7 @@ resource "aws_vpc_endpoint" "ecs_api" {
     var.security_group,
   ]
 
-  subnet_ids = var.private_subnet_id
+  subnet_ids          = var.private_subnet_id
   private_dns_enabled = true
 
   # tags = {
@@ -54,7 +54,7 @@ resource "aws_vpc_endpoint" "ecs_dkr" {
     var.security_group,
   ]
 
-  subnet_ids = var.private_subnet_id
+  subnet_ids          = var.private_subnet_id
   private_dns_enabled = true
 
   # tags = {

@@ -49,11 +49,10 @@ resource "aws_ecs_service" "ecs_service" {
   deployment_minimum_healthy_percent = 100
   desired_count                      = 2
   task_definition                    = aws_ecs_task_definition.hello_world_td.family
-  platform_version                   = "1.4.0"
+  platform_version                   = "1.4.0" # testing normally removed
 
   lifecycle {
-    ignore_changes = [
-    desired_count]
+    ignore_changes = [desired_count]
   }
 
   load_balancer {
@@ -86,18 +85,19 @@ resource "aws_ecs_task_definition" "hello_world_td" {
   family                   = local.application_name
   requires_compatibilities = [var.launch_type]
 
-  cpu          = var.cpu
-  memory       = var.memory
-  network_mode = var.network_mode
+  cpu                = var.cpu
+  memory             = var.memory
+  network_mode       = var.network_mode
   execution_role_arn = var.execution_role_arn
-  task_role_arn = var.execution_role_arn
+  task_role_arn      = var.execution_role_arn
 
+  # Testing, normally removed
   volume {
     name = "nginx-hello-world-efs"
 
     efs_volume_configuration {
-      file_system_id          = aws_efs_file_system.ecs_efs.id
-      root_directory          = "/opt/data"
+      file_system_id = aws_efs_file_system.ecs_efs.id
+      root_directory = "/"
       # transit_encryption      = "ENABLED"
       # transit_encryption_port = 2999
     }
@@ -108,7 +108,7 @@ resource "aws_ecs_task_definition" "hello_world_td" {
   }
 }
 
-# EFS file system
+# EFS file system / testing normally removed
 
 resource "aws_efs_file_system" "ecs_efs" {
   creation_token = "${var.environment}_nginx_hello_world"
@@ -118,7 +118,9 @@ resource "aws_efs_file_system" "ecs_efs" {
   }
 }
 
-resource "aws_efs_mount_target" "alpha" {
-  file_system_id = aws_efs_file_system.ecs_efs.id
-  subnet_id      = var.private_subnet[0]
+resource "aws_efs_mount_target" "private_subnets" {
+  for_each        = toset(var.private_subnet)
+  file_system_id  = aws_efs_file_system.ecs_efs.id
+  subnet_id       = each.key
+  security_groups = [var.security_group]
 }

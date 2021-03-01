@@ -1,13 +1,13 @@
 module "networking" {
-  for_each    = toset(["us-east-1", "eu-west-1"])
-  source      = "../../modules/networking"
-  environment = each.key
-  vpc_peer_id = module.vpc-peering.vpc_peer_id
-  bucket_name = module.s3-storage[each.key].alb_logs_bucket
-  access_ip   = var.access_ip
+  for_each     = toset(["us-east-1", "eu-west-1"])
+  source       = "../../modules/networking"
+  environment  = each.key
+  vpc_peer_id  = module.vpc-peering.vpc_peer_id
+  bucket_name  = module.s3-storage[each.key].alb_logs_bucket
+  access_ip    = var.access_ip
   nacl_ingress = var.nacl_ingress
-  nacl_egress = var.nacl_egress
-  sg_ingress = var.sg_ingress
+  nacl_egress  = var.nacl_egress
+  sg_ingress   = var.sg_ingress
   providers = {
     aws = aws.us-east-1 # change this to each.key and add to other modules
   }
@@ -74,9 +74,9 @@ module "endpoints" { # needs updating with each.key
 #   scale_in_cooldown = var.scale_in_cooldown
 #   scale_out_cooldown = var.scale_out_cooldown
 
-  # providers {
-  #   aws = aws."${var.environment}"
-  # }
+# providers {
+#   aws = aws."${var.environment}"
+# }
 # }
 
 # module "flow-logs-eu" {
@@ -85,9 +85,9 @@ module "endpoints" { # needs updating with each.key
 #   environment = each.key
 #   main_vpc = module.networking[each.key].main_vpc_id
 
-  # providers {
-  #   aws = aws."${var.environment}"
-  # }
+# providers {
+#   aws = aws."${var.environment}"
+# }
 # }
 
 # module "route53" {

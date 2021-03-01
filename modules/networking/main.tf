@@ -1,10 +1,10 @@
 #---------------------------------- NETWORKING
 
 locals {
-   public_cidrs = var.environment == "us-east-1" ? {us-east-1a = "10.0.1.0/24", us-east-1b = "10.0.2.0/24"} : {us-east-1a = "10.1.1.0/24", us-east-1b  = "10.1.2.0/24"}
-   private_cidrs = var.environment == "us-east-1" ? {us-east-1a = "10.0.3.0/24", us-east-1b = "10.0.4.0/24"} : {us-east-1a  = "10.1.3.0/24", us-east-1b = "10.1.4.0/24"}
-   cidr_block = var.environment == "us-east-1" ? "10.0.0.0/16" : "10.1.0.0/16"
-   peer_cidr = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
+  public_cidrs  = var.environment == "us-east-1" ? { us-east-1a = "10.0.1.0/24", us-east-1b = "10.0.2.0/24" } : { us-east-1a = "10.1.1.0/24", us-east-1b = "10.1.2.0/24" }
+  private_cidrs = var.environment == "us-east-1" ? { us-east-1a = "10.0.3.0/24", us-east-1b = "10.0.4.0/24" } : { us-east-1a = "10.1.3.0/24", us-east-1b = "10.1.4.0/24" }
+  cidr_block    = var.environment == "us-east-1" ? "10.0.0.0/16" : "10.1.0.0/16"
+  peer_cidr     = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
 }
 
 resource "aws_vpc" "main" {
@@ -54,7 +54,7 @@ resource "aws_route_table" "public_rt" {
   }
 
   route {
-    cidr_block     = local.peer_cidr
+    cidr_block                = local.peer_cidr
     vpc_peering_connection_id = var.vpc_peer_id
   }
 
@@ -65,7 +65,7 @@ resource "aws_route_table" "public_rt" {
 
 resource "aws_route_table" "private_rt" {
   for_each = aws_subnet.private_subnet
-  vpc_id = aws_vpc.main.id
+  vpc_id   = aws_vpc.main.id
 
   route {
     cidr_block     = var.access_ip
@@ -101,7 +101,7 @@ resource "aws_network_acl" "public_nacl" {
       action     = egress.value.action
       cidr_block = var.access_ip
       from_port  = egress.value.from_port
-      to_port    = egress.value.to_port     
+      to_port    = egress.value.to_port
     }
   }
 
@@ -112,7 +112,7 @@ resource "aws_network_acl" "public_nacl" {
 
 resource "aws_eip" "ngw" {
   for_each = aws_subnet.private_subnet
-  vpc   = true
+  vpc      = true
 }
 
 
@@ -147,13 +147,13 @@ resource "aws_security_group" "private_security_group" {
   dynamic "ingress" {
     for_each = var.sg_ingress
     content {
-      protocol   = "tcp"
+      protocol    = "tcp"
       cidr_blocks = [var.access_ip]
-      from_port  = ingress.value.from_port
-      to_port    = ingress.value.to_port
+      from_port   = ingress.value.from_port
+      to_port     = ingress.value.to_port
     }
   }
-  
+
   egress {
     protocol    = "-1" # all protocols
     cidr_blocks = [var.access_ip]
@@ -172,7 +172,7 @@ resource "aws_lb" "public_alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.private_security_group.id] # Change to security group for ALB
-  subnets = [for zone in aws_subnet.public_subnet : zone.id]
+  subnets            = [for zone in aws_subnet.public_subnet : zone.id]
 
   # LOGS FOR LOAD BALANCER
   access_logs {

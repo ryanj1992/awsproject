@@ -1,16 +1,16 @@
 resource "aws_athena_database" "alb_logs" {
-    name = "alb_access_logs"
-    bucket = "us-east-1-nginx-hello-world-alb-logs"
+  name   = "alb_access_logs"
+  bucket = "us-east-1-nginx-hello-world-alb-logs"
 }
 
 resource "aws_athena_workgroup" "alb_logs" {
-    name = "test"
-    
-    configuration {
-        result_configuration {
-            output_location = "s3://nginx-hello-world-alb-logs-us-east-1/AWSLogs/"
-        }
+  name = "test"
+
+  configuration {
+    result_configuration {
+      output_location = "s3://nginx-hello-world-alb-logs-us-east-1/AWSLogs/"
     }
+  }
 }
 
 resource "aws_athena_named_query" "create_table" {
