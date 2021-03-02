@@ -39,7 +39,7 @@ resource "aws_route53_record" "eu_latency" {
 
 # ---------------------- FAILOVER
 
-resource "aws_route53_record" "us_failover" {
+resource "aws_route53_record" "eu_failover" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = "www1" # the name of the record
   type    = "A"
@@ -58,7 +58,7 @@ resource "aws_route53_record" "us_failover" {
 
 }
 
-resource "aws_route53_record" "eu_failover" {
+resource "aws_route53_record" "us_failover" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = "www2" # the name of the record
   type    = "A"
