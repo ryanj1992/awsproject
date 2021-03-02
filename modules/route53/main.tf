@@ -1,12 +1,26 @@
-locals {
-  zone_name = var.environment == "us-east-1" ? "nginx-hello-world-us.com" : "nginx-hello-world-eu.com" # will need changing when going live
+data "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!?!
+  name = "rj.wren.cloud"                # Domain name?
 }
 
-resource "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!?!
-  name = local.zone_name                # Domain name?
+resource "aws_route53_record" "us_latency" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "example.com" # Domain name, maybe www?
+  type    = "A"
+
+
+  set_identifier = "us_latency"
+  latency_routing_policy {
+    region = var.environment # Region loadbalancer is in
+  }
+
+  alias {
+    name                   = var.us_lb_dns_name
+    zone_id                = var.us_lb_zone_id
+    evaluate_target_health = true
+  }
 }
 
-resource "aws_route53_record" "us-east-1-lb" {
+resource "aws_route53_record" "eu_latency" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = "example.com" # Domain name, maybe www?
   type    = "A"
@@ -15,9 +29,48 @@ resource "aws_route53_record" "us-east-1-lb" {
     region = var.environment # Region loadbalancer is in
   }
 
+  set_identifier = "eu_latency"
   alias {
-    name                   = var.dns_name
-    zone_id                = var.zone_id
+    name                   = var.eu_lb_dns_name
+    zone_id                = var.eu_lb_zone_id
+    evaluate_target_health = true
+  }
+}
+
+# ---------------------- FAILOVER
+
+resource "aws_route53_record" "us_failover" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "www1"
+  type    = "A"
+
+
+  failover_routing_policy {
+    type = "PRIMARY"
+  }
+
+  set_identifier = "eu_failover"
+  alias {
+    name                   = var.eu_lb_dns_name
+    zone_id                = var.eu_lb_zone_id
+    evaluate_target_health = true
+  }
+
+}
+
+resource "aws_route53_record" "eu_failover" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "www2"
+  type    = "A"
+
+  failover_routing_policy {
+    type = "SECONDARY"
+  }
+
+  set_identifier = "us_failover"
+  alias {
+    name                   = var.us_lb_dns_name
+    zone_id                = var.us_lb_zone_id
     evaluate_target_health = true
   }
 }

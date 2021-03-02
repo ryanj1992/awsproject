@@ -151,8 +151,10 @@
 module "route53" {
   source = "../../modules/route53"
   environment = each.key
-  dns_name = module.networking-us.public_alb_dns_name
-  zone_id = module.networking-us.public_alb_zone_id
+  us_lb_dns_name = module.networking-us.public_alb_dns_name
+  us_lb_zone_id = module.networking-us.public_alb_zone_id
+  eu_lb_dns_name = module.networking-eu.public_alb_dns_name
+  eu_lb_zone_id = module.networking-eu.public_alb_zone_id
 }
 
 # module "vpc-peering" {
