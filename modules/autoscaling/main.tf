@@ -1,6 +1,6 @@
 locals {
-  ecs_cluster = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
-  ecs_service = var.environment == "us-east-1" ? "nginx_hello_world_us" : "nginx_hello_world_eu"
+  ecs_cluster = var.environment == "us-east-1" ? "nginx-hello-world-us" : "nginx-hello-world-eu"
+  ecs_service = var.environment == "us-east-1" ? "nginx-hello-world-us" : "nginx-hello-world-eu"
 }
 
 
