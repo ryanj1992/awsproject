@@ -4,7 +4,7 @@ data "aws_route53_zone" "primary" { # only needs to be created once!?!?!?!?!?!
 
 resource "aws_route53_record" "us_latency" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "example.com" # Domain name, maybe www?
+  name    = "example.com" # the name of the record
   type    = "A"
 
 
@@ -22,7 +22,7 @@ resource "aws_route53_record" "us_latency" {
 
 resource "aws_route53_record" "eu_latency" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "example.com" # Domain name, maybe www?
+  name    = "example.com" # the name of the record
   type    = "A"
 
   latency_routing_policy {
@@ -41,7 +41,7 @@ resource "aws_route53_record" "eu_latency" {
 
 resource "aws_route53_record" "us_failover" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "www1"
+  name    = "www1" # the name of the record
   type    = "A"
 
 
@@ -60,7 +60,7 @@ resource "aws_route53_record" "us_failover" {
 
 resource "aws_route53_record" "eu_failover" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "www2"
+  name    = "www2" # the name of the record
   type    = "A"
 
   failover_routing_policy {
