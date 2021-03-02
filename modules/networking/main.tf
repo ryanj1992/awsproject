@@ -1,10 +1,10 @@
 #---------------------------------- NETWORKING
 
 locals {
-  public_cidrs  = var.environment == "us-east-1" ? { us-east-1a = "10.0.1.0/24", us-east-1b = "10.0.2.0/24" } : { us-east-1a = "10.1.1.0/24", us-east-1b = "10.1.2.0/24" }
-  private_cidrs = var.environment == "us-east-1" ? { us-east-1a = "10.0.3.0/24", us-east-1b = "10.0.4.0/24" } : { us-east-1a = "10.1.3.0/24", us-east-1b = "10.1.4.0/24" }
+  public_cidrs  = var.environment == "us-east-1" ? { us-east-1a = "10.0.1.0/24", us-east-1b = "10.0.2.0/24" } : { eu-west-1a = "10.1.1.0/24", eu-west-1b = "10.1.2.0/24" }
+  private_cidrs = var.environment == "us-east-1" ? { us-east-1a = "10.0.3.0/24", us-east-1b = "10.0.4.0/24" } : { eu-west-1a = "10.1.3.0/24", eu-west-1b = "10.1.4.0/24" }
   cidr_block    = var.environment == "us-east-1" ? "10.0.0.0/16" : "10.1.0.0/16"
-  peer_cidr     = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
+  # peer_cidr     = var.environment == "us-east-1" ? "10.1.0.0/16" : "10.0.0.0/16"
 }
 
 resource "aws_vpc" "main" {
@@ -53,10 +53,10 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  route {
-    cidr_block                = local.peer_cidr
-    vpc_peering_connection_id = var.vpc_peer_id
-  }
+  # route {
+  #   cidr_block                = local.peer_cidr
+  #   vpc_peering_connection_id = var.vpc_peer_id
+  # }
 
   tags = {
     Name = "${var.environment}_public_rt"

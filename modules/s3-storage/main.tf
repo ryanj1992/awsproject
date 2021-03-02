@@ -1,6 +1,6 @@
-# locals {
-#      alb_account = var.environment == "us-east-1" ? "127311923021" : "156460612806"
-# }
+locals {
+     alb_account = var.environment == "us-east-1" ? "127311923021" : "156460612806"
+}
 
 resource "aws_s3_bucket" "alb_logs" {
   bucket        = "nginx-hello-world-alb-logs-${var.environment}"
@@ -19,7 +19,7 @@ resource "aws_s3_bucket_policy" "access_logs" {
       {
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "arn:aws:iam::127311923021:root"
+          "AWS" : "arn:aws:iam::${local.alb_account}:root"
         },
         "Action" : "s3:PutObject",
         "Resource" : "arn:aws:s3:::nginx-hello-world-alb-logs-${var.environment}/*"
