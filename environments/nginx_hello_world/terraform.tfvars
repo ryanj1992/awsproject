@@ -3,8 +3,8 @@ aws_region = "us-east-1"
 
 # ECS vars
 launch_type      = "FARGATE"
-application_name = "nginx_hello_world"
-container_name   = "nginx_hello_world"
+application_name = "wordpress"
+container_name   = "wordpress"
 port_mappings = [
   {
     containerPort = 80
@@ -12,15 +12,15 @@ port_mappings = [
     protocol      = "tcp"
   }
 ]
-cpu          = "256"
-memory       = "512"
+cpu          = "1024"
+memory       = "4096"
 network_mode = "awsvpc"
 
 # Auto Scaling vars
 
 min_capacity       = 2
 max_capacity       = 4
-target_value       = 70
+target_value       = 60
 scale_in_cooldown  = 120
 scale_out_cooldown = 120
 

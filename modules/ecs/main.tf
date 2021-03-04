@@ -4,9 +4,9 @@ locals {
   application_name = var.environment == "us-east-1" ? "nginx-hello-world-us" : "nginx-hello-world-eu"
 }
 
-data "aws_ecr_repository" "service" {
-  name = "nginx_hello_world"
-}
+# data "aws_ecr_repository" "service" {
+#   name = "wordpress"
+# }
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = local.application_name
@@ -21,6 +21,10 @@ resource "aws_lb_target_group" "alb_target_group" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.main_vpc
+
+  health_check {
+    matcher = "200,302"
+  }
 
   tags = {
     Name = "${var.environment}_lb_tg"
@@ -76,7 +80,7 @@ resource "aws_ecs_service" "ecs_service" {
 module "ecs_hello_world" {
   source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.49.0"
   container_name  = var.container_name
-  container_image = data.aws_ecr_repository.service.repository_url
+  container_image = "783761860679.dkr.ecr.us-east-1.amazonaws.com/wordpress"
   port_mappings   = var.port_mappings
   # mount_points    = [
   #     {
