@@ -5,11 +5,14 @@ terraform {
       version = "~> 3.0"
     }
   }
-  # backend "s3" {
-  #   bucket = "nginx-hello-world-state-file"
-  #   key = "terraform/terraform.tfstate"
-  #   region = "us-east-1"
-  # }
+}
+
+terraform {
+    backend "s3" {
+    bucket = "terraform-remote-bucket-rj"
+    key = "terraform/terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
 provider "aws" {
